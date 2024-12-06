@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<hr style="margin-bottom: 12px; margin-top: 8px;">
+<div class="vision-ai-container custom-vision-ai">
+    <h1 class="header">비전 AI</h1>
+    <p class="subheader">이미지를 업로드하면 AI가 내용을 분석하여 설명합니다.</p>
+    <br>
+
+    <div class="content-section">
+        <div class="button-and-preview">
+            <div class="left-section">
+                <form id="vision-ai-form" method="post" enctype="multipart/form-data">
+                    <div class="button-group">
+                        <label for="file-upload" class="file-input-label upload-button">
+                            이미지 선택
+                            <input id="file-upload" class="file-input" type="file" name="file" accept="image/png, image/jpeg" />
+                        </label>
+                        <button type="submit" class="upload-button" style="font-size: 18px;">분석 시작</button>
+                    </div>
+                </form>
+                <div class="spinner-container" id="spinner-container" style="display: none;">
+                    <div class="spinner"></div>
+                    <p class="spinner-text">분석 중...</p>
+                </div>
+            </div>
+
+            <div id="image-preview-container" class="image-preview-container">
+                <img id="preview" alt="이미지 미리보기" />
+                <span id="preview-text">이미지를 업로드하면 미리 보기가 표시됩니다.</span>
+            </div>
+        </div>
+
+        <!-- 텍스트 입력칸 -->
+        <div class="text-input-section">
+            <form id="prompt-form">
+                <label for="user-prompt" class="prompt-label">프롬프트 입력</label>
+                <textarea id="user-prompt" name="prompt" rows="4" placeholder="이미지에 대한 질문을 입력하시오, 입력이 없으면 단순히 이미지를 영어로 설명합니다." style="background-color: #101727; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; color: aliceblue;" required></textarea>
+            </form>
+        </div>
+    </div>
+    <br>
+
+    <div id="generated-description-container" style="display: none;">
+        <h2 style="font-size: 35px;">AI의 분석 결과</h2>
+        <br>
+        <div class="api-response" id="generated-description" style="font-size: 18px;"></div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+</div>
+
+<script>
+    const fileInput = document.getElementById("file-upload");
+    const previewImage = document.getElementById("preview");
+    const previewText = document.getElementById("preview-text");
+    const spinnerContainer = document.getElementById("spinner-container");
+    const descriptionContainer = document.getElementById("generated-description-container");
+    const generatedDescription = document.getElementById("generated-description");
+
+    fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.style.display = "block";
+                previewText.style.display = "none";
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewImage.style.display = "none";
+            previewText.style.display = "block";
+        }
+    });
+
+    const form = document.getElementById("vision-ai-form");
+    const promptInput = document.getElementById("user-prompt");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        spinnerContainer.style.display = "flex";
+        descriptionContainer.style.display = "none";
+        generatedDescription.innerText = ""; // 결과 초기화
+
+        const formData = new FormData(form);
+        const userPrompt = promptInput.value;
+        formData.append("prompt", userPrompt);
+
+        try {
+            const response = await fetch("{{ url_for('vision_ai_stream') }}", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                spinnerContainer.style.display = "none";
+                alert("이미지 분석 중 오류가 발생했습니다.");
+                return;
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            descriptionContainer.style.display = "block";
+
+            let done = false;
+            while (!done) {
+                const { value, done: streamDone } = await reader.read();
+                done = streamDone;
+                const chunk = decoder.decode(value, { stream: true });
+                generatedDescription.innerText += chunk; // 스트림 데이터를 추가로 출력
+            }
+
+            spinnerContainer.style.display = "none";
+        } catch (error) {
+            spinnerContainer.style.display = "none";
+            alert("요청을 처리하는 동안 문제가 발생했습니다.");
+        }
+    });
+
+    // 텍스트 입력창에서 엔터키를 눌렀을 때 폼 제출
+    promptInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault(); // 기본 Enter 동작 방지
+            form.requestSubmit(); // 폼 제출
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+<!-- templates/chat.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<hr style="margin-bottom: 12px; margin-top: 8px;">
+<div class="chat-container">
+    <div class="sidebar">
+        <h2>대화방 목록</h2>
+        <hr style="margin-top: 12px; margin-bottom: 12px;">
+        
+        <ul class="conversation-list">
+            {% for conv in conversations %}
+            <li><a href="{{ url_for('chat_conversation', conversation_id=conv.conversation_id) }}">{{ conv.conversation_name }}</a></li>
+            {% endfor %}
+        </ul>
+        <form action="{{ url_for('start_conversation') }}" method="post">
+            <input type="text" name="conversation_name" placeholder="새 대화 이름" style="background-color: rgb(11, 11, 34); color: aliceblue;" required>
+            <button type="submit">새 대화 시작</button>
+        </form>
+    </div>
+    <div class="chat-content">
+        <p>대화방을 선택하고 퍼스널 컬러 전문가 AI와 대화를 시작하세요!</p>
+    </div>
+</div>
+{% endblock %}

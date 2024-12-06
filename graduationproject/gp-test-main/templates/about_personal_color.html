@@ -1,0 +1,134 @@
+<!-- templates/about_personal_color.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="about-container">
+
+    <!-- 퍼스널 컬러 정의 섹션 -->
+    <section class="intro-section">
+        <hr>
+        <br>
+        <br>
+        <br>
+        <h1>퍼스널 컬러란?</h1>
+        <br>
+        <br>
+        <br>
+        <p>퍼스널 컬러는 개인의 피부톤, 눈동자 색깔, 머리카락 색깔 등을 고려하여 가장 잘 어울리는 색상을 찾는 색채이론입니다.</p>
+        <br>
+        <br>
+        <p>퍼스널 컬러는 주로 두 가지 큰 계절적 분류와 네 가지 구체적인 계절 타입으로 설명됩니다.</p>
+        <br>
+        <p>각 계절은 따뜻한 톤과 차가운 톤으로 나뉘며, 사람의 자연적인 색체와 조화를 이루는 색조 및 색상을 찾아내는 데 도움을 줍니다.</p>
+        <br>
+        <br>
+        <p>퍼스널 컬러를 잘 이해하고 활용하면 의상, 메이크업, 액세서리 선택에 있어서</p>
+        <p>자신에게 가장 잘 어울리는 색을 선택할 수 있어 더욱 조화롭고 매력적으로 보일 수 있습니다.</p>
+        <br>
+        <p>이를 통해 만족스러운 스타일링과 자신감을 얻을 수 있습니다.</p>
+    </section>
+
+    <!-- 계절별 섹션 -->
+    <section class="season-section" id="spring">
+        <div class="season-title">
+            <h2>봄 (Spring)</h2>
+        </div>
+        <div class="season-image" style="background-image: url('{{ url_for('static', filename='images/spring_back.jpg') }}');"></div>
+        <div class="season-description">
+            <h3>봄 타입의 사람들은 화사하고 생동감 있는 색상을 통해 자신감을 표현할 수 있으며,</h3>
+            <h3>이러한 색상들은 그들의 자연스러운 따뜻함과 밝음을 더욱 부각시켜 줍니다.</h3>
+            <h3>특히 자연의 색인 밝은 꽃 색상이나 연한 과일 색상이 잘 어울리며,</h3>
+            <h3>이러한 색을 의상이나 메이크업에 사용하면 더욱 빛나는 모습을 연출할 수 있습니다.</h3>
+            <br>
+            <h2>밝고 화사한 색들이 많은데, 대표적으로 밝은 노랑, 연두색, 코랄 등이 있습니다.</h2>
+        </div>
+    </section>
+    <br>
+    <br>
+    <br>
+    
+    <!-- 동일한 구조로 여름, 가을, 겨울 섹션 추가 -->
+    <section class="season-section" id="summer">
+        <div class="season-title">
+            <h2>여름 (Summer)</h2>
+        </div>
+        <div class="season-image" style="background-image: url('{{ url_for('static', filename='images/summer_back.jpg') }}');"></div>
+        <div class="season-description">
+            <h3>여름 타입은 전체적으로 보았을 때 소프트하고 쿨한 색조가 잘 어울리며,</h3>
+            <h3>강렬한 색상보다는 은은한 파스텔 톤이나 쿨톤의 색상이 더 매력적으로 보입니다.</h3>
+            <h3>이러한 색조는 여름 타입의 사람들에게 자연스러운 조화를 이루며,</h3>
+            <h3> 지나치게 화려하지 않지만 세련된 이미지를 연출하는 데 도움이 됩니다.</h3>
+            <br>
+            <h2>라벤더, 베이비 블루, 소프트 핑크 등이 포함됩니다.</h2>
+        </div>
+    </section>
+    <br>
+    <br>
+    <br>
+    
+    <section class="season-section" id="fall">
+        <div class="season-title">
+            <h2>가을 (Fall)</h2>
+        </div>
+        <div class="season-image" style="background-image: url('{{ url_for('static', filename='images/fall_back.jpg') }}');"></div>
+        <div class="season-description">
+            <h3>가을 타입의 사람들은 일반적으로 따뜻하고 녹슨 듯한 자연의 색상에 가장 잘 어울립니다.</h3>
+            <h3>이 색상들은 그들의 자연적이고 성숙한 아름다움을 강조하며,</h3>
+            <h3> 의상, 메이크업, 액세서리에서 이러한 색상 팔레트를 활용하면 더욱 조화롭고 세련된 이미지를 연출할 수 있습니다.</h3>
+            <br>
+            <h2>예를 들어, 녹색, 테라코타, 올리브 등이 이에 해당됩니다.</h2>
+        </div>
+    </section>
+    <br>
+    <br>
+    <br>
+    
+    <section class="season-section" id="winter">
+        <div class="season-title">
+            <h2>겨울 (Winter)</h2>
+        </div>
+        <div class="season-image" style="background-image: url('{{ url_for('static', filename='images/winter_back.jpg') }}');"></div>
+        <div class="season-description">
+            <h3>겨울 타입의 사람들은 극명한 대조를 이루는 선명하고 깨끗한 색조가 잘 어울립니다.</h3>
+            <h3>이러한 색은 겨울 타입의 자연스러운 색 대비를 더욱 강조하여 인상적인 모습을 만들어 줍니다.</h3>
+            <h3> 시크하고 강렬한 멋을 내는 데 좋은 겨울 색상은 옷이나 메이크업 등에 적용하여 세련된 스타일을 완성할 수 있습니다.</h3>
+            <br>
+            <h2>선명한 검정, 화이트, 다크 블루 등의 색상 팔레트가 일반적입니다.</h2>
+        </div>
+    </section>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sections = document.querySelectorAll('.season-section');
+        const options = {
+            threshold: 0.5
+        };
+    
+        const observer = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('scrolled');
+                } else {
+                    entry.target.classList.remove('scrolled');
+                }
+            });
+        }, options);
+    
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>
+{% endblock %}

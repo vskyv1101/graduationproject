@@ -1,0 +1,22 @@
+<!-- templates/login.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    <h1 class="header" style="margin-top: 200px;">로그인</h1>
+    <div class="form-container">
+        <form method="post" class="auth-form">
+            <div class="form-group">
+                <input type="text" name="user_id" placeholder="아이디" style="background-color: rgb(7, 7, 43); color: blanchedalmond;" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="비밀번호" style="background-color: rgb(7, 7, 43); color: blanchedalmond;" required>
+            </div>
+            <div class="form-group button-container">
+                <button type="submit">로그인</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,191 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    <div class="main-container">
+        <!-- 왼쪽 섹션: AI 설명 -->
+        <div class="left-section">
+            <h2>퍼스널 컬러 분류 AI</h2>
+            <br>
+            <br>
+            <p>퍼스널 컬러 이미지를 학습한 EfficientNet-B4 AI 모델이 당신의 퍼스널 컬러를 분류합니다.</p>
+            <br>
+            <p>모델 관련 <a href="https://proceedings.mlr.press/v97/tan19a/tan19a.pdf" target="_blank">논문</a></p>
+            <br>
+            <p>사진을 업로드하거나 촬영하여 당신의 퍼스널 컬러를 알아보세요!</p>
+        </div>
+        <!-- 수직선 -->
+        <div class="vertical-line"></div>
+        <!-- 오른쪽 섹션: 이미지 업로드 폼 -->
+        <div class="right-section">
+            <h1 class="header">퍼스널 컬러 진단</h1>
+            <p class="subheader">이미지를 선택하거나 사진을 찍으시오</p>
+            <form id="upload-form" action="/personal_color" method="post" enctype="multipart/form-data" onsubmit="return checkFileUpload(event)">
+                <div class="button-and-image-container">
+                    <div class="button-group">
+                        <label for="file-input" class="file-input-label">
+                            이미지 선택
+                        </label>
+                        <button type="button" id="start-camera" class="file-input-label">사진 찍기</button>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <button type="submit" class="upload-button">진단하기</button>
+                    </div>
+                    <div class="image-preview-container">
+                        <!-- 이미지가 없을 때는 이 div를 표시 -->
+                        <div id="preview-text">이곳에 선택된 이미지가 보여집니다</div>
+                        <!-- 이미지가 선택되면 이 img 태그를 표시 -->
+                        <img id="preview" src="#" alt="Image Preview" style="display: none;">
+                    </div>
+                </div>
+                <input type="file" id="file-input" name="file" accept="image/*" onchange="previewFile(event)" class="file-input">
+                <span id="file-name"></span>
+                <div id="camera-container" style="display:none;">
+                    <video id="video" width="640" height="480" autoplay></video>
+                    <button type="button" id="capture-photo">사진 캡쳐</button>
+                </div>
+                <canvas id="canvas" style="display:none;"></canvas>
+            </form>
+            <!-- 로딩 메시지 및 스피너 -->
+            <div id="loading-message" style="display: none; text-align: center; margin-top: 20px;">
+                이미지 분석 중입니다. 잠시만 기다려주세요...
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript 코드 -->
+<script>
+    let video = null;
+    let canvas = null;
+    let photo = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        video = document.getElementById('video');
+        canvas = document.getElementById('canvas');
+        photo = document.getElementById('preview');
+
+        document.getElementById('start-camera').addEventListener('click', function(ev){
+            ev.preventDefault();
+            document.getElementById('camera-container').style.display = 'block';
+            navigator.mediaDevices.getUserMedia({video: true, audio: false})
+            .then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(function(err) {
+                console.log("An error occurred: " + err);
+            });
+        }, false);
+
+        document.getElementById('capture-photo').addEventListener('click', function(ev){
+            ev.preventDefault();
+            takePicture();
+            stopVideoStream();
+        }, false);
+    });
+
+    function stopVideoStream() {
+        const stream = video.srcObject;
+        const tracks = stream.getTracks();
+
+        tracks.forEach(function(track) {
+            track.stop();
+        });
+
+        video.srcObject = null;
+        document.getElementById('camera-container').style.display = 'none';
+    }
+
+    function takePicture() {
+        const context = canvas.getContext('2d');
+        if (video.videoWidth && video.videoHeight) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+            const dataURL = canvas.toDataURL('image/png');
+            photo.setAttribute('src', dataURL);
+            photo.style.display = 'block';
+
+            // Convert dataURL to Blob and store it for form submission
+            dataURLToBlob(dataURL, function(blob) {
+                // Append blob to form data
+                const file = new File([blob], 'webcam.png', {type: 'image/png'});
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                document.getElementById('file-input').files = dataTransfer.files;
+            });
+
+            document.getElementById('file-name').textContent = `Captured Image: webcam.png`;
+        } else {
+            clearPhoto();
+        }
+    }
+
+    function clearPhoto() {
+        const context = canvas.getContext('2d');
+        context.fillStyle = "#AAA";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        const data = canvas.toDataURL('image/png');
+        photo.setAttribute('src', data);
+    }
+
+    function dataURLToBlob(dataURL, callback) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', dataURL);
+        xhr.responseType = 'blob';
+        xhr.onload = function() {
+            callback(xhr.response);
+        };
+        xhr.send();
+    }
+
+    function previewFile(event) {
+        const input = event.target;
+        const preview = document.getElementById('preview');
+        const previewText = document.getElementById('preview-text');
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            document.getElementById('file-name').textContent = `Selected file: ${fileName}`;
+
+            const reader = new FileReader();
+            reader.onload = function(){
+                preview.src = reader.result;
+                preview.style.display = 'block';
+                previewText.style.display = 'none'; // 텍스트 숨김
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = "#";
+            preview.style.display = 'none';
+            previewText.style.display = 'block'; // 텍스트 표시
+        }
+    }
+
+    function checkFileUpload(event) {
+        const input = document.getElementById('file-input');
+        if (input.files.length === 0) {
+            event.preventDefault(); // 폼 제출을 막음
+            alert('파일을 선택해주세요.');
+            return false;
+        }
+        return true;
+    }
+
+    document.getElementById('upload-form').addEventListener('submit', function(event) {
+    // 로딩 메시지 표시 및 버튼 비활성화
+    document.getElementById('loading-message').style.display = 'block';
+    document.getElementById('submit-button').disabled = true;
+
+    // 파일 입력 비활성화
+    document.getElementById('file-input').disabled = true;
+    });
+</script>
+{% endblock %}

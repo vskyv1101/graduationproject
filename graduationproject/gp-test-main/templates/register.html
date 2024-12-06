@@ -1,0 +1,52 @@
+<!-- templates/register.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    <h1 class="header" style="margin-top: 200px; margin-bottom: 40px;">회원가입</h1>
+    <div class="form-container">
+        <form method="post" class="auth-form">
+            <div class="form-group">
+                <input type="text" name="user_id" placeholder="아이디" style="background-color: rgb(7, 7, 43); color: blanchedalmond;" required>
+                <button type="button" id="check-id-btn">아이디 중복 확인</button>
+                <p id="id-check-result"></p>
+            </div>
+            <!-- 비밀번호 입력 칸 사이에 간격 추가 -->
+            <div class="form-group">
+                <!-- 빈 div로 간격 생성 -->
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="비밀번호" style="background-color: rgb(7, 7, 43); color: blanchedalmond;" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" placeholder="이메일" style="background-color: rgb(7, 7, 43); color: blanchedalmond;" required>
+            </div>
+            <input type="hidden" name="id_checked" id="id-checked" value="">
+            <div class="form-group button-container">
+                <button type="submit">회원가입 완료</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $('#check-id-btn').click(function() {
+        var user_id = $('input[name="user_id"]').val();
+        if (user_id === '') {
+            alert('아이디를 입력해주세요.');
+            return;
+        }
+        $.post('/check_id', {user_id: user_id}, function(data) {
+            if (data === '중복') {
+                $('#id-check-result').text('아이디에 중복이 발생합니다.');
+                $('#id-checked').val('');
+            } else {
+                $('#id-check-result').text('사용 가능한 아이디입니다.');
+                $('#id-checked').val('checked');
+            }
+        });
+    });
+</script>
+{% endblock %}

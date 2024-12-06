@@ -1,0 +1,53 @@
+<!-- templates/first.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    {% if user_id %}
+        <h1 class="header" style="margin-top: 200px;">퍼스널 컬러 진단</h1>
+        <h1 class="subheader" style="margin-bottom: 80px;">{{ user_id }}님, 환영합니다!</h1>
+        <div class="auth-buttons" style="text-align: center;">
+            <button onclick="location.href='/personal_color'">퍼스널 컬러 진단 시작</button>
+            <button onclick="location.href='/logout'">로그아웃</button>
+        </div>
+    {% else %}
+        <h1 class="header" style="margin-top: 200px;">퍼스널 컬러 진단</h1>
+        <p class="subheader">당신의 퍼스널 컬러는 무엇인가요?</p>
+        <div class="auth-buttons">
+            <button onclick="location.href='/login'">로그인</button>
+            <button onclick="location.href='/register'">회원가입</button>
+        </div>
+    {% endif %}
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<footer class="business-info">
+    <p>학교 : 동양미래대학교</p>
+    <p>그룹 : 사색 - Thinking</p>
+    <p>팀장 : 최인환</p>
+    <p>이메일 : kimsuhan135@naver.com</p>
+    <p>프로젝트 깃허브 : <a href="https://github.com/suhan1029/gp-test" target="_blank">https://github.com/suhan1029/gp-test</a> </p>
+</footer>
+{% endblock %}

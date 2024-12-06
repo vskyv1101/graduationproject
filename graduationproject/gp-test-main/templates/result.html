@@ -1,0 +1,76 @@
+<!-- templates/result.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="horizontal-line"></div>
+    <h1 class="header">진단 결과</h1>
+    <p class="subheader">당신의 퍼스널 컬러는!</p>
+    <div class="prediction-container">
+        <img src="{{ url_for('static', filename='images/' + prediction + '.jpg') }}" alt="{{ prediction }}" class="prediction-image">
+        <div class="prediction-text {{ prediction }}-color">
+            {{ prediction }}
+        </div>
+        <img src="{{ url_for('static', filename='images/' + prediction + '.jpg') }}" alt="{{ prediction }}" class="prediction-image">
+    </div>
+    <br>
+    <br>
+    <br>
+    <div class="explanation">
+        <!-- Container for the streaming explanation -->
+        <div id="explanation-text" class="api-response"></div>
+    </div>
+    <br>
+    <br>
+    {% if image_url %}
+        <p style="text-align: center;">아래 이미지는 예측 결과를 바탕으로 생성형 AI가 만든 옷입니다.</p>
+        <div id="generated-image-container">
+            <img id="generated-image" src="{{ image_url }}" alt="Generated Image">
+        </div>
+    {% else %}
+        <p>이미지를 생성할 수 없습니다.</p>
+    {% endif %}
+    <div class="button-container">
+        <a href="/personal_color" class="upload-button no-underline">다른 이미지로 진단하기</a>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+</div>
+
+<!-- JavaScript for the typewriter effect -->
+<script>
+    function typeWriterHTML(element, htmlContent, speed) {
+        let index = 0;
+        let isTag = false;
+        let text = '';
+    
+        function type() {
+            if (index < htmlContent.length) {
+                let char = htmlContent[index];
+                text += char;
+                element.innerHTML = text;
+                if (char === '<') {
+                    isTag = true;
+                }
+                if (char === '>') {
+                    isTag = false;
+                }
+                index++;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const explanationHTML = `{{ explanation | safe | replace('\n', '\\n') | replace("'", "\\'") }}`;
+        const explanationElement = document.getElementById('explanation-text');
+        typeWriterHTML(explanationElement, explanationHTML, 30);
+    });
+</script>
+{% endblock %}

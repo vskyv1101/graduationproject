@@ -1,0 +1,164 @@
+<!-- templates/conversation.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<hr style="margin-bottom: 12px; margin-top: 8px;">
+<div class="chat-container">
+    <!-- Sidebar with conversation list -->
+    <div class="sidebar">
+        <h3>대화방 목록</h3>
+        <hr style="margin-top: 12px; margin-bottom: 12px;">
+        <ul class="conversation-list">
+            {% for convo in conversations %}
+            <li>
+                <a href="{{ url_for('chat_conversation', conversation_id=convo.conversation_id) }}">{{ convo.conversation_name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        <form method="post" action="{{ url_for('start_conversation') }}">
+            <input type="text" name="conversation_name" placeholder="새 대화 이름" style="background-color: rgb(11, 11, 34); color: aliceblue;" required>
+            <button type="submit">새 대화 시작</button>
+        </form>
+    </div>
+
+    <!-- Chat content -->
+    <div class="chat-content">
+        <h2>{{ conversation.conversation_name }}</h2>
+        <div class="messages">
+            {% for msg in messages %}
+            <div class="message {{ msg.sender }}">
+                {% if msg.sender == 'assistant' %}
+                    <div class="assistant-message">{{ msg.message | safe }}</div>
+                {% else %}
+                    <p>{{ msg.message }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Loading message and spinner -->
+        <div id="loading-message" style="display: none; text-align: center; margin-top: 10px;">
+            Sending...
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Chat input form -->
+        <form class="chat-form" id="chat-form">
+            <div class="input-container">
+                <textarea name="message" id="message-input" placeholder="Type your message..." style="color: aliceblue; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;"></textarea>
+                <button type="submit" id="send-button">Send</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Include JavaScript -->
+<script>
+    document.getElementById('chat-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+        if (message === '') return;
+    
+        // 로딩 메시지 표시 및 버튼 비활성화
+        document.getElementById('loading-message').style.display = 'block';
+        document.getElementById('send-button').disabled = true;
+        messageInput.disabled = true;
+    
+        // 사용자의 메시지 추가
+        const userMessageHtml = `<div class="message user"><p>${message}</p></div>`;
+        document.querySelector('.messages').insertAdjacentHTML('beforeend', userMessageHtml);
+        messageInput.value = '';
+    
+        // 스크롤을 아래로 이동
+        document.querySelector('.messages').scrollTop = document.querySelector('.messages').scrollHeight;
+    
+        const conversationId = '{{ conversation.conversation_id }}';
+    
+        // 서버에 사용자 메시지 전송
+        fetch(`/send_message/${conversationId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // EventSource로 스트리밍 시작
+                const eventSource = new EventSource(`/stream_response/${conversationId}`);
+    
+                // 어시스턴트 메시지 컨테이너 추가
+                const assistantMessageContainer = document.createElement('div');
+                assistantMessageContainer.classList.add('message', 'assistant');
+                const assistantMessageContent = document.createElement('div');
+                assistantMessageContent.classList.add('assistant-message');
+                assistantMessageContainer.appendChild(assistantMessageContent);
+                document.querySelector('.messages').appendChild(assistantMessageContainer);
+    
+                eventSource.onmessage = function(e) {
+                    if (e.event === 'done') {
+                        // 응답 완료 시 처리
+                        reloadMessages();
+                    } else {
+                        // 스트리밍된 데이터를 받아서 표시
+                        const data = e.data;
+                        assistantMessageContent.innerHTML += data;
+                    
+                        // 스크롤을 아래로 이동
+                        assistantMessageContent.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }
+                };
+
+                eventSource.addEventListener('done', function(e) {
+                    // 응답 완료 시 처리
+                    reloadMessages();
+
+                    // EventSource 닫기
+                    eventSource.close();
+
+                    // 로딩 메시지 숨기기 및 입력 활성화
+                    document.getElementById('loading-message').style.display = 'none';
+                    document.getElementById('send-button').disabled = false;
+                    messageInput.disabled = false;
+                });
+
+                // 메시지 부분만 다시 로드하는 함수
+                function reloadMessages() {
+                    fetch(`/chat/{{ conversation.conversation_id }}/messages`)
+                        .then(response => response.text())
+                        .then(html => {
+                            document.querySelector('.messages').innerHTML = html;
+                            // 스크롤을 아래로 이동
+                            document.querySelector('.messages').scrollTop = document.querySelector('.messages').scrollHeight;
+                        });
+                }
+    
+                eventSource.onerror = function() {
+                    eventSource.close();
+                    // 로딩 메시지 숨기기 및 입력 활성화
+                    document.getElementById('loading-message').style.display = 'none';
+                    document.getElementById('send-button').disabled = false;
+                    messageInput.disabled = false;
+                };
+            } else {
+                alert('메시지 전송 중 오류가 발생했습니다.');
+                // 로딩 메시지 숨기기 및 입력 활성화
+                document.getElementById('loading-message').style.display = 'none';
+                document.getElementById('send-button').disabled = false;
+                messageInput.disabled = false;
+            }
+        });
+    });
+    
+    // Enter 키로 메시지 전송, Shift+Enter로 줄바꿈
+    document.getElementById('message-input').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            if (!event.shiftKey) {
+                event.preventDefault();
+                document.getElementById('send-button').click();
+            }
+        }
+    });
+</script>
+    
+{% endblock %}

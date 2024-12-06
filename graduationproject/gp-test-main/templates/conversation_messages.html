@@ -1,0 +1,12 @@
+<!-- templates/conversation_messages.html -->
+<div class="messages">
+    {% for msg in messages %}
+    <div class="message {{ msg.sender }}">
+        {% if msg.sender == 'assistant' %}
+            <div class="assistant-message">{{ msg.message | safe }}</div>
+        {% else %}
+            <p>{{ msg.message }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>

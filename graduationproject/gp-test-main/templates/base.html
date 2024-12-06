@@ -1,0 +1,39 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Four Color</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="header-container">
+        <div class="header-content">
+            <div class="logo">
+                <a href="/">
+                    <img src="{{ url_for('static', filename='images/home_icon.png') }}" alt="Home" class="home-icon">
+                    FOUR COLOR
+                </a>
+            </div>
+            <div class="menu">
+                {% if user_id %}
+                    <a href="/about_personal_color" class="menu-item">퍼스널 컬러란?</a>
+                    <a href="/chat" class="menu-item">AI와 채팅</a>
+                    <a href="/vision_ai" class="menu-item">비전 AI</a>
+                    <a href="/history" class="menu-item">진단 기록</a>
+                    <a href="/logout" class="menu-item">로그아웃</a>
+                {% else %}
+                    <a href="/about_personal_color" class="menu-item">퍼스널 컬러란?</a>
+                    <a href="/login" class="menu-item">로그인</a>
+                    <a href="/register" class="menu-item">회원가입</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% block content %}
+    <!-- 페이지별 내용이 여기에 삽입됩니다. -->
+    {% endblock %}
+</body>
+</html>
